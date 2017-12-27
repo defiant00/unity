@@ -8,26 +8,26 @@ public class Character : MonoBehaviour
 
 	public int PosX, PosY, Movement = 5;
 
-	Map Map;
+	GameState State;
 
 	Stack<Vector3> MovementPoints = new Stack<Vector3>();
 
 	void Start()
 	{
 		transform.position = new Vector3(PosX, PosY);
-		Map = GameObject.Find("Map").GetComponent<Map>();
+		State = FindObjectOfType<GameState>();
 	}
 
 	void Update()
 	{
-		if (Map.State.TurnState == TurnState.Moving && MovementPoints.Count > 0)
+		if (State.TurnState == TurnState.Moving && MovementPoints.Count > 0)
 		{
 			transform.position = Vector3.MoveTowards(transform.position, MovementPoints.Peek(), Time.deltaTime * MOVE_SPEED);
 
 			if (transform.position == MovementPoints.Peek())
 			{
 				MovementPoints.Pop();
-				if (MovementPoints.Count == 0) { Map.State.TurnState = TurnState.Idle; }
+				if (MovementPoints.Count == 0) { State.TurnState = TurnState.Idle; }
 			}
 		}
 	}
@@ -41,11 +41,11 @@ public class Character : MonoBehaviour
 			int cx = x, cy = y;
 			while (cx != PosX || cy != PosY)
 			{
-				int cw = Map.State.MovementMap[cx, cy];
-				if (Map.ValidMovementStep(cx - 1, cy, cw)) { cx--; }
-				else if (Map.ValidMovementStep(cx + 1, cy, cw)) { cx++; }
-				else if (Map.ValidMovementStep(cx, cy - 1, cw)) { cy--; }
-				else if (Map.ValidMovementStep(cx, cy + 1, cw)) { cy++; }
+				int cw = State.MovementMap[cx, cy];
+				if (State.ValidMovementStep(cx - 1, cy, cw)) { cx--; }
+				else if (State.ValidMovementStep(cx + 1, cy, cw)) { cx++; }
+				else if (State.ValidMovementStep(cx, cy - 1, cw)) { cy--; }
+				else if (State.ValidMovementStep(cx, cy + 1, cw)) { cy++; }
 				else { throw new Exception("Error, unable to find a path from " + PosX + ", " + PosY + " to " + x + ", " + y); }
 				MovementPoints.Push(new Vector3(cx, cy));
 			}
@@ -53,11 +53,11 @@ public class Character : MonoBehaviour
 			PosX = x;
 			PosY = y;
 
-			Map.State.TurnState = TurnState.Moving;
+			State.TurnState = TurnState.Moving;
 		}
 		else
 		{
-			Map.State.TurnState = TurnState.Idle;
+			State.TurnState = TurnState.Idle;
 		}
 	}
 }
