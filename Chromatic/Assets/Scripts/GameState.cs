@@ -2,18 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum TurnState
 {
-	Idle,
+	Ready,
 	SelectMoveLocation,
 	Moving,
+	PickAction,
 }
 
 public class GameState : MonoBehaviour
 {
 	public int X = 10, Y = 10;
 	public Indicator Indicator;
+	public Color MoveColor = new Color(0.4f, 0.6f, 1);
+	public Color AttackColor = new Color(1, 0.2f, 0.2f);
 
 	[HideInInspector]
 	public bool[] CollisionMap;
@@ -24,9 +28,10 @@ public class GameState : MonoBehaviour
 	public int[,] MovementMap;
 
 	Indicator[,] Indicators;
-	List<Character> Characters;
-	Character SelectedCharacter;
+	List<Unit> Units;
+	Unit SelectedUnit;
 	Camera Camera;
+	bool[,] TeamMap;
 
 	public bool GetCollisionMap(int x, int y)
 	{
@@ -47,19 +52,19 @@ public class GameState : MonoBehaviour
 	{
 		switch (TurnState)
 		{
-			case TurnState.Idle:
-				var ch = Characters.FirstOrDefault(c => c.PosX == x && c.PosY == y);
-				if (ch != null)
+			case TurnState.Ready:
+				var un = Units.FirstOrDefault(u => u.X == x && u.Y == y && u.UnitState == UnitState.Ready && u.IsPlayerUnit);
+				if (un != null)
 				{
-					SelectedCharacter = ch;
-					CalcMovementMap(ch.PosX, ch.PosY, ch.Movement);
+					SelectedUnit = un;
+					CalcMovementMap(un.X, un.Y, un.Speed, un.Team);
 					TurnState = TurnState.SelectMoveLocation;
 				}
 				break;
 			case TurnState.SelectMoveLocation:
 				if (MovementMap[x, y] > 0)
 				{
-					SelectedCharacter.MoveTo(x, y);
+					SelectedUnit.MoveTo(x, y);
 					ClearIndicators();
 				}
 				break;
@@ -71,8 +76,12 @@ public class GameState : MonoBehaviour
 		switch (TurnState)
 		{
 			case TurnState.SelectMoveLocation:
-				TurnState = TurnState.Idle;
+				TurnState = TurnState.Ready;
 				ClearIndicators();
+				break;
+			case TurnState.PickAction:
+				TurnState = TurnState.Ready;
+				SelectedUnit.ResetMove();
 				break;
 		}
 	}
@@ -88,15 +97,42 @@ public class GameState : MonoBehaviour
 		}
 	}
 
-	void CalcMovementMap(int x, int y, int mov)
+	void DisplayMovementMap()
+	{
+		for (int x = 0; x < X; x++)
+		{
+			for (int y = 0; y < Y; y++)
+			{
+				SetIndicator(x, y, MovementMap[x, y] > 0, MoveColor);
+			}
+		}
+	}
+
+	void CalcTeamMap(int team)
+	{
+		for (int x = 0; x < X; x++)
+		{
+			for (int y = 0; y < Y; y++)
+			{
+				TeamMap[x, y] = false;
+			}
+		}
+		foreach (var un in Units.Where(u => u.Team != team))
+		{
+			TeamMap[un.X, un.Y] = true;
+		}
+	}
+
+	void CalcMovementMap(int x, int y, int mov, int team)
 	{
 		var steps = new Queue<MovementStep>();
 		ClearMovementMap();
+		CalcTeamMap(team);
 		steps.Enqueue(new MovementStep(x, y, mov + 1));   // Add 1 to mov since we're treating 0 as a point that can't be reached
 		while (steps.Count > 0)
 		{
 			var ms = steps.Dequeue();
-			if (ms.X > -1 && ms.Y > -1 && ms.X < X && ms.Y < Y && !GetCollisionMap(ms.X, ms.Y) && MovementMap[ms.X, ms.Y] < ms.Weight)
+			if (ms.X > -1 && ms.Y > -1 && ms.X < X && ms.Y < Y && !GetCollisionMap(ms.X, ms.Y) && !TeamMap[ms.X, ms.Y] && MovementMap[ms.X, ms.Y] < ms.Weight)
 			{
 				MovementMap[ms.X, ms.Y] = ms.Weight;
 				steps.Enqueue(new MovementStep(ms.X - 1, ms.Y, ms.Weight - 1));
@@ -105,14 +141,7 @@ public class GameState : MonoBehaviour
 				steps.Enqueue(new MovementStep(ms.X, ms.Y + 1, ms.Weight - 1));
 			}
 		}
-
-		for (int cx = 0; cx < X; cx++)
-		{
-			for (int cy = 0; cy < Y; cy++)
-			{
-				SetIndicator(cx, cy, MovementMap[cx, cy] > 0, Color.white);
-			}
-		}
+		DisplayMovementMap();
 	}
 
 	void SetIndicator(int x, int y, bool display, Color color)
@@ -132,8 +161,9 @@ public class GameState : MonoBehaviour
 		// Get the camera.
 		Camera = GameObject.Find("Camera").GetComponent<Camera>();
 
-		// Setup the game state.
+		// Setup arrays.
 		MovementMap = new int[X, Y];
+		TeamMap = new bool[X, Y];
 
 		// Setup the indicators.
 		var root = new GameObject("Indicators");
@@ -149,7 +179,7 @@ public class GameState : MonoBehaviour
 		}
 
 		// Get all the characters.
-		Characters = FindObjectsOfType<Character>().ToList();
+		Units = FindObjectsOfType<Unit>().ToList();
 	}
 
 	void Update()
