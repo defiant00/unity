@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 231129072}
   - component: {fileID: 231129071}
   m_Layer: 0
-  m_Name: Main Camera
+  m_Name: Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -247,7 +247,13 @@ Prefab:
       propertyPath: m_Name
       value: c_t1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 114056536992121312, guid: 8452ddd7fa0c9d74c93076bd20f00054,
+        type: 2}
+      propertyPath: Movement
+      value: 12
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 0}
   m_ParentPrefab: {fileID: 100100000, guid: 8452ddd7fa0c9d74c93076bd20f00054, type: 2}
   m_IsPrefabParent: 0
 --- !u!1 &1229458547
@@ -260,6 +266,7 @@ GameObject:
   - component: {fileID: 1229458549}
   - component: {fileID: 1229458548}
   - component: {fileID: 1229458550}
+  - component: {fileID: 1229458551}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -340,6 +347,17 @@ MonoBehaviour:
   Indicator: {fileID: 114759551241140010, guid: 0e323d098ed1dd347a1861e0d3a2329c,
     type: 2}
   Values: 00000000010000000000000000000000000000000000000001000000000000000000000000000000000000000100000000000000000000000000000000000000010000000000000000000000000000000000000001000000000000000000000000000000000000000100000000000000000000000000000000000000010000000000000000000000000000000000000001000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000100000000000001000000000000000000000000010000000000010000000000000000000000000001000000000001000000000000000000000000000100000000000100000000000000000000000000010000000000010000000000000000000000000001000000000000000000000000000000000000000100000000000000000000000000000000000000010000000000000000000000000000000000000001000000000000000000000000000000
+--- !u!114 &1229458551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1229458547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3395d0d0233b65e4d8fade9650907d80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1835525984
 Prefab:
   m_ObjectHideFlags: 0
@@ -393,6 +411,12 @@ Prefab:
       propertyPath: PosY
       value: 13
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 114056536992121312, guid: 8452ddd7fa0c9d74c93076bd20f00054,
+        type: 2}
+      propertyPath: Movement
+      value: 8
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 0}
   m_ParentPrefab: {fileID: 100100000, guid: 8452ddd7fa0c9d74c93076bd20f00054, type: 2}
   m_IsPrefabParent: 0

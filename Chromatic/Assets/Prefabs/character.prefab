@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4468326497720362}
   - component: {fileID: 212163954577422878}
-  - component: {fileID: 61095274660301830}
   - component: {fileID: 114056536992121312}
   m_Layer: 0
   m_Name: character
@@ -42,31 +41,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &61095274660301830
-BoxCollider2D:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1818760437008672}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
 --- !u!114 &114056536992121312
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -80,6 +54,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PosX: 0
   PosY: 0
+  Movement: 5
 --- !u!212 &212163954577422878
 SpriteRenderer:
   m_ObjectHideFlags: 1

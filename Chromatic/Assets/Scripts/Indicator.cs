@@ -1,21 +1,20 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class Indicator : MonoBehaviour
 {
-	[HideInInspector]
+	[NonSerialized]
 	public Map Map;
+	[NonSerialized]
+	public SpriteRenderer SpriteRenderer;
+
+	void Start()
+	{
+		SpriteRenderer = GetComponent<SpriteRenderer>();
+	}
 
 	public bool Visible
 	{
-		get { return GetComponent<SpriteRenderer>().enabled; }
-	}
-
-	void OnMouseDown()
-	{
-		if (Visible)
-		{
-			Map.State.SelectedCharacter.MoveTo((int)transform.position.x, (int)transform.position.y);
-		}
-		Map.ClearIndicators();
+		get { return SpriteRenderer.enabled; }
 	}
 }

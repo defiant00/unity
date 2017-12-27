@@ -1,13 +1,13 @@
 ﻿public enum TurnState
 {
-	Ready,
+	Idle,
+	SelectMoveLocation,
 	Moving,
-	SelectingAction,
-	AnimatingAction,
 }
 
 public class GameState
 {
-	public TurnState TState;
+	public TurnState TurnState;
 	public Character SelectedCharacter;
+	public int[,] MovementMap;
 }
