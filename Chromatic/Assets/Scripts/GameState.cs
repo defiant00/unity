@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Events;
 
 public enum TurnState
 {
@@ -16,6 +16,7 @@ public class GameState : MonoBehaviour
 {
 	public int X = 10, Y = 10;
 	public Indicator Indicator;
+	public ActionButton ActionButton;
 	public Color MoveColor = new Color(0.4f, 0.6f, 1);
 	public Color AttackColor = new Color(1, 0.2f, 0.2f);
 
@@ -31,6 +32,7 @@ public class GameState : MonoBehaviour
 	List<Unit> Units;
 	Unit SelectedUnit;
 	Camera Camera;
+	Canvas Canvas;
 	bool[,] TeamMap;
 
 	public bool GetCollisionMap(int x, int y)
@@ -82,8 +84,117 @@ public class GameState : MonoBehaviour
 			case TurnState.PickAction:
 				TurnState = TurnState.Ready;
 				SelectedUnit.ResetMove();
+				ClearActionUI();
+				ClearIndicators();
 				break;
 		}
+	}
+
+	void Attack()
+	{
+		Debug.Log("attack");
+	}
+
+	void Fuse()
+	{
+		Debug.Log("fuse");
+	}
+
+	void Wait()
+	{
+		SelectedUnit.UnitState = UnitState.Done;
+		FinishAction();
+	}
+
+	void FinishAction()
+	{
+		ClearActionUI();
+		SelectedUnit = null;
+		TurnState = TurnState.Ready;
+	}
+
+	public void PickAction()
+	{
+		TurnState = TurnState.PickAction;
+
+		var names = new List<string>();
+		var acts = new List<UnityAction>();
+
+		var fusionUnit = GetFusionUnit(SelectedUnit);
+		if (fusionUnit != null)
+		{
+			names.Add("Fuse");
+			acts.Add(() => Fuse());
+		}
+		else
+		{
+			ShowAttackRange(SelectedUnit);
+
+			var targets = GetAttackList(SelectedUnit);
+			if (targets.Count > 0)
+			{
+				names.Add("Attack");
+				acts.Add(() => Attack());
+			}
+
+			names.Add("Wait");
+			acts.Add(() => Wait());
+		}
+
+		GenActionUI(names, acts);
+	}
+
+	void ShowAttackRange(Unit u)
+	{
+		for (int x = 0; x < X; x++)
+		{
+			for (int y = 0; y < Y; y++)
+			{
+				int d = Distance(u.X, u.Y, x, y);
+				SetIndicator(x, y, d >= u.MinRange && d <= u.MaxRange, AttackColor);
+			}
+		}
+	}
+
+	List<Unit> GetAttackList(Unit unit)
+	{
+		return Units.Where(u =>
+		{
+			int d = UnitDistance(u, unit);
+			return u.Team != unit.Team && d >= unit.MinRange && d <= unit.MaxRange;
+		}).ToList();
+	}
+
+	Unit GetFusionUnit(Unit unit)
+	{
+		return Units.FirstOrDefault(u => u != unit && u.Player == unit.Player && u.X == unit.X && u.Y == unit.Y && (u.Weight + unit.Weight) <= 3);
+	}
+
+	int UnitDistance(Unit u1, Unit u2)
+	{
+		return Distance(u1.X, u1.Y, u2.X, u2.Y);
+	}
+
+	int Distance(int x1, int y1, int x2, int y2)
+	{
+		return Math.Abs(x1 - x2) + Math.Abs(y1 - y2);
+	}
+
+	void GenActionUI(List<string> names, List<UnityAction> actions)
+	{
+		for (int i = 0; i < names.Count; i++)
+		{
+			var b = Instantiate(ActionButton, Vector3.zero, Quaternion.identity);
+			b.Text = names[i];
+			b.Click = actions[i];
+			b.transform.SetParent(Canvas.transform, false);
+			b.Position = new Vector2(-100, -40 - i * 40);
+		}
+	}
+
+	void ClearActionUI()
+	{
+		foreach (var b in GetComponentsInChildren<ActionButton>()) { Destroy(b.gameObject); }
 	}
 
 	void ClearMovementMap()
@@ -160,6 +271,9 @@ public class GameState : MonoBehaviour
 	{
 		// Get the camera.
 		Camera = GameObject.Find("Camera").GetComponent<Camera>();
+
+		// Get the canvas.
+		Canvas = GetComponentInChildren<Canvas>();
 
 		// Setup arrays.
 		MovementMap = new int[X, Y];

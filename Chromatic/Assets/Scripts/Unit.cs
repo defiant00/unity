@@ -14,7 +14,11 @@ public class Unit : MonoBehaviour
 
 	public int X, Y;
 	public int Player, Team;
-	public int Speed = 8, Range = 1;
+
+	public int Speed = 8;
+	public int MinRange = 1;
+	public int MaxRange = 1;
+	public int Weight = 1;
 
 	[NonSerialized]
 	public UnitState UnitState;
@@ -44,7 +48,7 @@ public class Unit : MonoBehaviour
 			if (transform.position == MovementPoints.Peek())
 			{
 				MovementPoints.Pop();
-				if (MovementPoints.Count == 0) { PickAction(); }
+				if (MovementPoints.Count == 0) { State.PickAction(); }
 			}
 		}
 	}
@@ -80,7 +84,7 @@ public class Unit : MonoBehaviour
 
 			State.TurnState = TurnState.Moving;
 		}
-		else { PickAction(); }
+		else { State.PickAction(); }
 	}
 
 	public void ResetMove()
@@ -88,10 +92,5 @@ public class Unit : MonoBehaviour
 		X = PriorX;
 		Y = PriorY;
 		transform.position = new Vector3(X, Y);
-	}
-
-	void PickAction()
-	{
-		State.TurnState = TurnState.PickAction;
 	}
 }
