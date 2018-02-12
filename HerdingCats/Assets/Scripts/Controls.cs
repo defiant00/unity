@@ -6,6 +6,6 @@ public class Controls : MonoBehaviour
 
 	void Update()
 	{
-		transform.position += new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * Time.deltaTime * SPEED;
+		transform.position += new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")) * Time.deltaTime * SPEED;
 	}
 }
